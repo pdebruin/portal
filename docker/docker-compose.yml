@@ -1,0 +1,35 @@
+version: '3'
+services:
+    portalweb:
+        image: pdebruin/portalweb
+        build:
+            context: ./web/
+            dockerfile: dockerfile
+        ports: 
+            - 80:80
+        networks: 
+            - default
+        env_file:
+            - vars.env
+        depends_on:
+            - portaldb
+
+    portaldb:
+        image: microsoft/mssql-server-windows-express
+        networks: 
+            - default
+        env_file:
+            - vars.env
+        environment: 
+            ACCEPT_EULA: "Y"
+            attach_dbs: "[
+              {'dbName':'Portal','dbFiles':['C:\\\\tempdb\\\\Portal.mdf','C:\\\\tempdb\\\\Portal_log.ldf']}]"
+        ports:
+            - "1433:1433"
+        volumes: 
+            - C:/_projects/portal/docker/db:C:/tempdb/
+
+networks:
+    default:
+        external:
+            name: nat
